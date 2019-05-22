@@ -137,12 +137,11 @@ function calculate() {
     } else{
         var totalProgress = 100;
     }
-    var totalProgress = 100*(currentToken+currentTokenFromHonor+drewToken)/requiredToken;
     $("#totalProgressBar").css("width", totalProgress + "%")
                           .attr("aria-valuenow", totalProgress)
                           .html(totalProgress + "% Complete");
 
-                          
+
     if (restTokenNeeded > 0) {
         var restProgress = 100*(currentToken + currentTokenFromHonor) / (requiredToken-drewToken)
     } else{
