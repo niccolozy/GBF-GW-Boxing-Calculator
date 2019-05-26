@@ -139,17 +139,17 @@ function calculate() {
     }
     $("#totalProgressBar").css("width", totalProgress + "%")
                           .attr("aria-valuenow", totalProgress)
-                          .html(totalProgress + "% Complete");
+                          .html(totalProgress.toFixed(2) + "% Complete");
 
 
     if (restTokenNeeded > 0) {
         var restProgress = 100*(currentToken + currentTokenFromHonor) / (requiredToken-drewToken)
     } else{
-        var restProgress = 100;
+        var restProgress = totalProgress;
     }
     $("#restProgressBar").css("width", restProgress + "%")
                          .attr("aria-valuenow", restProgress)
-                         .html(restProgress + "% Complete");
+                         .html(restProgress.toFixed(2) + "% Complete");
 
     var table = $("#predict")[0]
     fillPredictTable(table, 1, ExPredict);
