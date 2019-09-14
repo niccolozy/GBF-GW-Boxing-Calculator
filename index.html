@@ -53,7 +53,18 @@
                                 <label for="currentTokenFromHonor">贡献折算战货</label>
                                 <small id="helpId" class="text-muted"></small>
                                 <input type="text" name="currentTokenFromHonor" id="currentTokenFromHonor" class="form-control" placeholder="" aria-describedby="helpId" disabled>
-                
+
+                                <label for="currentMeat">所持肉数</label>
+                                <small id="helpId" class="text-muted"></small>
+                                <input type="text" name="currentMeat" id="currentMeat" class="form-control trigger-cal" placeholder="" aria-describedby="helpId">
+
+                                <label for="ExDropMeat">旧牛掉肉数</label>
+                                <small id="helpId" class="text-muted"></small>
+                                <input type="text" name="ExDropMeat" id="ExDropMeat" class="form-control trigger-cal" placeholder="" aria-describedby="helpId" value="3">
+
+                                <label for="ExPlusDropMeat">新牛掉肉数</label>
+                                <small id="helpId" class="text-muted"></small>
+                                <input type="text" name="ExPlusDropMeat" id="ExPlusDropMeat" class="form-control trigger-cal" placeholder="" aria-describedby="helpId" value="3.5">
                             </div>
                         </form>
                     </div>
@@ -138,6 +149,60 @@
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <b>刷肉补正</b>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="form-group">
+                                <label for="battleMeat">刷肉关卡</label>
+                                <select class="form-control trigger-adj" name="" id="battleMeat">
+                                    <option value="Ex">Ex牛</option>
+                                    <option value="ExPlus">Ex+牛</option>
+                                </select>
+
+                            </div>
+
+                            <div class="form-group">
+                                <label for="battleHell">Hell关卡</label>
+                                <select class="form-control trigger-adj" name="" id="battleHell">
+                                    <option value="90Hell">90Hell</option>
+                                    <option value="95Hell">95Hell</option>
+                                    <option value="100Hell">100Hell</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <table class="table" id="adjust">
+                                <thead>
+                                    <tr>
+                                        <th>还需要</th>
+                                        <th id="adjustTableBattleMeatName">Ex牛</th>
+                                        <th id="adjustTableBattleHellName">90HELL</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr id="num">
+                                        <th>数量</th>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr id="elixir">
+                                        <th>需要小红</th>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr id="totalElixir">
+                                            <th>总共小红</th>
+                                            <td colspan="2"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -50,7 +50,7 @@ var Hell90  = new BattleInfo(45, 20, 18, 260000, 30, 2, 5);
 var Hell95  = new BattleInfo(55, 30, 26, 910000, 40, 3, 10);
 var Hell100 = new BattleInfo(80, 48, 40, 2650000, 50, 3, 20);
 
-function predictForBattle(battle, token, APFill) {
+function predictForBattle(battle, token, APFill, currentMeat) {
     let result = {}
     result["num"] = Math.ceil(token/battle.getTotalToken(true));
     if (result["num"] < 0){
@@ -64,6 +64,30 @@ function predictForBattle(battle, token, APFill) {
     if (result["meat"] < 0){
         result["meat"] = 0
     }
+    result["needMeatAdjust"] = currentMeat < result["meat"];
+    return result;
+}
+
+function adjustForMeat(battleMeat, battleHell, token, APFill, currentMeat, dropMeat) {
+
+    let result = {};
+    result["numMeat"] = Math.ceil((token - currentMeat / battleHell.meat * battleHell.getTotalToken(true)) / (battleMeat.getTotalToken(true) + dropMeat / battleHell.meat * battleHell.getTotalToken(true)));
+    if (result["numMeat"] < 0){
+        result["numMeat"] = 0
+    }
+    result["numHell"] = result["numMeat"] > 0 ? Math.floor((currentMeat + result["numMeat"] * dropMeat) / battleHell.meat) : Math.ceil(token/battleHell.getTotalToken(true));
+    if (result["numHell"] < 0){
+        result["numHell"] = 0
+    }
+    result["elixirMeat"] = Math.ceil(battleMeat.AP * result["numMeat"] / APFill);
+    result["elixirHell"] = Math.ceil(battleHell.AP * result["numHell"] / APFill);
+    if (result["elixirMeat"] < 0){
+        result["elixirMeat"] = 0
+    }
+    if (result["elixirHell"] < 0){
+        result["elixirHell"] = 0
+    }
+    console.log(result);
     return result;
 }
 
@@ -73,6 +97,9 @@ function writeToStorage() {
     localStorage.setItem("drewBox", $("#drewBox").val());
     localStorage.setItem("currentToken", $("#currentToken").val());
     localStorage.setItem("currentHonor", $("#currentHonor").val());
+    localStorage.setItem("currentMeat", $("#currentMeat").val());
+    localStorage.setItem("ExDropMeat", $("#ExDropMeat").val());
+    localStorage.setItem("ExPlusDropMeat", $("#ExPlusDropMeat").val());
 }
 
 function loadFromStorage() {
@@ -81,12 +108,31 @@ function loadFromStorage() {
     $("#drewBox").val(localStorage.getItem("drewBox"));
     $("#currentToken").val(localStorage.getItem("currentToken"));
     $("#currentHonor").val(localStorage.getItem("currentHonor"));
+    $("#currentMeat").val(localStorage.getItem("currentMeat"));
+    $("#ExDropMeat").val(localStorage.getItem("ExDropMeat"));
+    $("#ExPlusDropMeat").val(localStorage.getItem("ExPlusDropMeat"));
 }
 
 function fillPredictTable(table, col, result) {
     $(table.rows[1].cells[col]).html(result["num"]);
     $(table.rows[2].cells[col]).html(result["elixir"]);
-    $(table.rows[3].cells[col]).html(result["meat"]);
+
+    if (result["needMeatAdjust"]){
+        $(table.rows[3].cells[col]).html(result["meat"]).css("color", "red");
+    }
+    else{
+        $(table.rows[3].cells[col]).html(result["meat"]).css("color", "black");
+    }
+}
+
+function fillAdjustTable(table, battleNames, result) {
+    $(table.rows[0].cells[1]).html(battleNames[0]);
+    $(table.rows[0].cells[2]).html(battleNames[1]);
+    $(table.rows[1].cells[1]).html(result["numMeat"]);
+    $(table.rows[1].cells[2]).html(result["numHell"]);
+    $(table.rows[2].cells[1]).html(result["elixirMeat"]);
+    $(table.rows[2].cells[2]).html(result["elixirHell"]);
+    $(table.rows[3].cells[1]).html(result["elixirHell"] + result["elixirMeat"]);
 }
 
 function readInput(id) {
@@ -104,9 +150,9 @@ function calculate() {
     let drewBox = readInput('drewBox');
     let currentToken = readInput('currentToken');
     let currentHonor = readInput('currentHonor');
-    let currentMeat = 1111111;
-    let ExDropMeat = 3;
-    let ExPlusDropMeat = 3.5
+    let currentMeat = readInput('currentMeat');
+    let ExDropMeat = readInput('ExDropMeat');
+    let ExPlusDropMeat = readInput('ExPlusDropMeat');
 
     var requiredToken = getTotalTokenToBox(targetBox);
     var drewToken = getTotalTokenToBox(drewBox);
@@ -118,11 +164,11 @@ function calculate() {
 
     
     var restToken = requiredToken - drewToken - currentToken - currentTokenFromHonor;
-    var ExPredict = predictForBattle(Ex, restToken, APFill);
-    var ExPlusPredict = predictForBattle(ExPlus, restToken, APFill);
-    var Hell90Predict = predictForBattle(Hell90, restToken, APFill);
-    var Hell95Predict = predictForBattle(Hell95, restToken, APFill);
-    var Hell100Predict = predictForBattle(Hell100, restToken, APFill);
+    var ExPredict = predictForBattle(Ex, restToken, APFill, currentMeat);
+    var ExPlusPredict = predictForBattle(ExPlus, restToken, APFill, currentMeat);
+    var Hell90Predict = predictForBattle(Hell90, restToken, APFill, currentMeat);
+    var Hell95Predict = predictForBattle(Hell95, restToken, APFill, currentMeat);
+    var Hell100Predict = predictForBattle(Hell100, restToken, APFill, currentMeat);
 
     var table = $("#progress")[0];
     var restTokenNeeded = requiredToken-drewToken < 0 ? 0 : requiredToken-drewToken;
@@ -157,9 +203,68 @@ function calculate() {
     fillPredictTable(table, 3, Hell90Predict);
     fillPredictTable(table, 4, Hell95Predict);
     fillPredictTable(table, 5, Hell100Predict);
+
+    adjust();
+}
+
+function adjust() {
+    writeToStorage();
+    let APFill = readInput('APFill');
+    let targetBox =  readInput('targetBox');
+    let drewBox = readInput('drewBox');
+    let currentToken = readInput('currentToken');
+    let currentHonor = readInput('currentHonor');
+    let currentMeat = readInput('currentMeat');
+    let ExDropMeat = readInput('ExDropMeat');
+    let ExPlusDropMeat = readInput('ExPlusDropMeat');
+
+    var requiredToken = getTotalTokenToBox(targetBox);
+    var drewToken = getTotalTokenToBox(drewBox);
+    var currentTokenFromHonor = Math.floor(currentHonor * ratioHonorToToken);
+    var restToken = requiredToken - drewToken - currentToken - currentTokenFromHonor;
+
+    var headers = ["", ""];
+    switch ($("#battleMeat").children("option:selected").val()) {
+        case "Ex":
+            var battleMeat = Ex;
+            var dropMeat = ExDropMeat;
+            headers[0] = "Ex牛";
+            break;
+        case "ExPlus":
+            var battleMeat = ExPlus;
+            var dropMeat = ExPlusDropMeat;
+            headers[0] = "Ex+牛";
+            break;
+    
+        default:
+            return;
+    }
+
+    switch ($("#battleHell").children("option:selected").val()) {
+        case "90Hell":
+            var battleHell = Hell90;
+            headers[1] = "90Hell";
+            break;
+        case "95Hell":
+            var battleHell = Hell95;
+            headers[1] = "95Hell";
+            break;
+        case "100Hell":
+            var battleHell = Hell100;
+            headers[1] = "100Hell";
+            break;
+        default:
+            return;
+    }
+
+    var adjustResult = adjustForMeat(battleMeat, battleHell, restToken, APFill, currentMeat, dropMeat);
+    var table = $("#adjust")[0]
+    fillAdjustTable(table, headers, adjustResult);
 }
 
 $(".trigger-cal").on('input click', calculate);
+
+$(".trigger-adj").on('change', adjust);
 
 window.onload = function () { 
     loadFromStorage();
