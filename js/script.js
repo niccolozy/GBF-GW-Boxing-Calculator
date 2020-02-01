@@ -92,7 +92,6 @@ function adjustForMeat(battleMeat, battleHell, token, APFill, currentMeat, dropM
 }
 
 function writeToStorage() {
-    localStorage.setItem("APFill", $("#APFill").val());
     localStorage.setItem("targetBox", $("#targetBox").val());
     localStorage.setItem("drewBox", $("#drewBox").val());
     localStorage.setItem("currentToken", $("#currentToken").val());
@@ -103,7 +102,6 @@ function writeToStorage() {
 }
 
 function loadFromStorage() {
-    $("#APFill").val(localStorage.getItem("APFill"));
     $("#targetBox").val(localStorage.getItem("targetBox"));
     $("#drewBox").val(localStorage.getItem("drewBox"));
     $("#currentToken").val(localStorage.getItem("currentToken"));
@@ -145,7 +143,7 @@ function readInput(id) {
 
 function calculate() {
     writeToStorage();
-    let APFill = readInput('APFill');
+    let APFill = 75;
     let targetBox =  readInput('targetBox');
     let drewBox = readInput('drewBox');
     let currentToken = readInput('currentToken');
@@ -209,7 +207,7 @@ function calculate() {
 
 function adjust() {
     writeToStorage();
-    let APFill = readInput('APFill');
+    let APFill = 75;
     let targetBox =  readInput('targetBox');
     let drewBox = readInput('drewBox');
     let currentToken = readInput('currentToken');
